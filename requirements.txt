@@ -1,9 +1,7 @@
-angles==1.15.0
-matplotlib==3.8.3
-numpy==1.26.4
-opencv_python==4.9.0.80
-Pillow==10.3.0
-PySocialForce.egg==info
-torch==2.3.0
-torchvision==0.18.0
-training==0.0.1
+angles>=1.15.0
+matplotlib>=3.8.3
+numpy>=1.26.4
+opencv_python>=4.9.0.80
+Pillow>=10.3.0
+torch>=2.3.0
+torchvision>=0.18.0
