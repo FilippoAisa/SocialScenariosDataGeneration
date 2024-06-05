@@ -3,6 +3,7 @@ import random
 import math
 import matplotlib.pyplot as plt
 import cv2
+import os
 
 def draw_wall(map, x0, y0, x1, y1):
     Dx = x1 - x0
@@ -69,6 +70,9 @@ def generate_corner(map_size):
 map_size = 40
 
 version = 0
+parent_dir = os.path.abspath(os.getcwd())
+output_dir = os.path.join(parent_dir, 'images/in_out')
+os.makedirs(output_dir, exist_ok=True)
 for i in range(500):
     gridmap_walls, gridmap_cost = generate_corner(map_size)
     transposed_gridmap = np.transpose(gridmap_walls)
@@ -77,15 +81,15 @@ for i in range(500):
     mirrored_cost= np.flip(gridmap_cost, axis=1)
     rotated_gridmap = np.flip(transposed_gridmap, axis=0)
     rotated_costmap = np.flip(transposed_cost, axis=0)
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/corner_step_{version}_out.jpg', gridmap_cost)
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/corner_step_{version}_in.jpg', gridmap_walls)
+    cv2.imwrite(os.path.join(output_dir, f'corner_step_{version}_out.jpg'), gridmap_cost)
+    cv2.imwrite(os.path.join(output_dir, f'corner_step_{version}_in.jpg'), gridmap_walls)
     version +=1
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/corner_step_{version}_out.jpg', transposed_cost)
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/corner_step_{version}_in.jpg', transposed_gridmap)
+    cv2.imwrite(os.path.join(output_dir, f'corner_step_{version}_out.jpg'), transposed_cost)
+    cv2.imwrite(os.path.join(output_dir, f'corner_step_{version}_in.jpg'), transposed_gridmap)
     version +=1
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/corner_step_{version}_out.jpg', mirrored_cost)
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/corner_step_{version}_in.jpg', mirrored_gridmap)
+    cv2.imwrite(os.path.join(output_dir, f'corner_step_{version}_out.jpg'), mirrored_cost)
+    cv2.imwrite(os.path.join(output_dir, f'corner_step_{version}_in.jpg'), mirrored_gridmap)
     version +=1
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/corner_step_{version}_out.jpg', rotated_costmap)
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/corner_step_{version}_in.jpg', rotated_gridmap)
+    cv2.imwrite(os.path.join(output_dir, f'corner_step_{version}_out.jpg'), rotated_costmap)
+    cv2.imwrite(os.path.join(output_dir, f'corner_step_{version}_in.jpg'), rotated_gridmap)
     version +=1

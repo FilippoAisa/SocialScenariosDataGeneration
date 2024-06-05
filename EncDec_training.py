@@ -142,7 +142,8 @@ num_epochs = 20
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model.to(device)
 
-output_dir = os.path.join(os.path.dirname('/home/ais/USAN/src/PySocialForce/images/'), 'EncDec_validation_outputs')
+parent_dir = os.path.abspath(os.getcwd())
+output_dir = os.path.join(parent_dir, 'images/EncDec_validation_outputs')
 os.makedirs(output_dir, exist_ok=True)
 
 for epoch in range(num_epochs):

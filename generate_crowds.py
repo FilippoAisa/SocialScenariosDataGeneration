@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 import angles
 import math
-
+import os
 def humans_in_gridmap(humans, human_gridmap):
     # Determine the maximum x and y values for scaling
     x_max = np.max(scaling_obs[:, 1])
@@ -15,7 +15,6 @@ def humans_in_gridmap(humans, human_gridmap):
 
     # Update the human_gridmap in place
     for i in range(humans_grid_pos.shape[0]):
-        print(humans_grid_pos[i, 0])
         human_gridmap[humans_grid_pos[i, 0], humans_grid_pos[i, 1]] = max(100, human_gridmap[humans_grid_pos[i, 0], humans_grid_pos[i, 1]])
         dx = 0
         dy = 0
@@ -137,7 +136,10 @@ x_dim_grid = 40
 y_dim_grid = 40
 
 version = 0
-for i in range(1):
+parent_dir = os.path.abspath(os.getcwd())
+output_dir = os.path.join(parent_dir, 'images/in_out')
+os.makedirs(output_dir, exist_ok=True)
+for i in range(1000):
     initial_state = []
     num_of_people = int(np.floor(random.uniform(4, 40)))
     
@@ -152,12 +154,6 @@ for i in range(1):
     costmap = np.zeros([40,40], dtype=np.uint8)
     gridmap = humans_in_gridmap(np.array(initial_state), gridmap)
     costmap  = people_costs(costmap, np.array(initial_state))
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/crowd_step_{version}_out.jpg', costmap)
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/crowd_step_{version}_in.jpg', gridmap)
+    cv2.imwrite(os.path.join(output_dir, f'crowd_step_{version}_out.jpg'), costmap)
+    cv2.imwrite(os.path.join(output_dir, f'crowd_step_{version}_in.jpg'), gridmap)
     version +=1
-
-        
-    
-
-    
-

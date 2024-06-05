@@ -1,8 +1,8 @@
 import numpy as np
 import random
-import matplotlib.pyplot as plt
 import math
 import cv2
+import os
 
 def draw_wall(map, x0, y0, x1, y1):
     Dx = x1 - x0
@@ -100,6 +100,9 @@ grid_size = 40
 min_distance = 6
 
 version = 0
+parent_dir = os.path.abspath(os.getcwd())
+output_dir = os.path.join(parent_dir, 'images/in_out')
+os.makedirs(output_dir, exist_ok=True)
 for i in range(500):
     gridmap, angle, start_y, end_y, goal_x, goal_y = create_gridmap_with_hallways(grid_size, min_distance)
     cost_map = create_symmetric_cost_map(grid_size, angle, start_y, end_y, goal_x, goal_y)
@@ -110,17 +113,17 @@ for i in range(500):
     mirrored_cost= np.flip(cost_map, axis=1)
     rotated_gridmap = np.flip(transposed_gridmap, axis=0)
     rotated_costmap = np.flip(transposed_cost, axis=0)
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/hallway_step_{version}_out.jpg',cost_map)
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/hallway_step_{version}_in.jpg', gridmap)
-    version = version + 1
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/hallway_step_{version}_out.jpg', transposed_cost)
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/hallway_step_{version}_in.jpg', transposed_gridmap)
-    version = version + 1
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/hallway_step_{version}_out.jpg', mirrored_cost)
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/hallway_step_{version}_in.jpg', mirrored_gridmap)
-    version = version + 1
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/hallway_step_{version}_out.jpg', rotated_costmap)
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/hallway_step_{version}_in.jpg', rotated_gridmap)
-    version = version + 1
+    cv2.imwrite(os.path.join(output_dir, f'hallway_step_{version}_out.jpg'), cost_map)
+    cv2.imwrite(os.path.join(output_dir, f'hallway_step_{version}_in.jpg'), gridmap)
+    version +=1
+    cv2.imwrite(os.path.join(output_dir, f'hallway_step_{version}_out.jpg'), transposed_cost)
+    cv2.imwrite(os.path.join(output_dir, f'hallway_step_{version}_in.jpg'), transposed_gridmap)
+    version +=1
+    cv2.imwrite(os.path.join(output_dir, f'hallway_step_{version}_out.jpg'), mirrored_cost)
+    cv2.imwrite(os.path.join(output_dir, f'hallway_step_{version}_in.jpg'), mirrored_gridmap)
+    version +=1
+    cv2.imwrite(os.path.join(output_dir, f'hallway_step_{version}_out.jpg'), rotated_costmap)
+    cv2.imwrite(os.path.join(output_dir, f'hallway_step_{version}_in.jpg'), rotated_gridmap)
+    version +=1
 
 
