@@ -1,8 +1,8 @@
 import numpy as np
 import random
-import matplotlib.pyplot as plt
 import math
 import cv2
+import os
 
 def draw_wall(map, x0, y0, x1, y1):
     Dx = x1 - x0
@@ -39,22 +39,23 @@ def rotate_point(cx, cy, angle, px, py):
     
     return int(px), int(py)
 
-def create_gridmap_with_hallways(grid_size, min_distance=6):
+def create_gridmap_with_hallways(grid_size, min_distance=4):
     gridmap = np.zeros((grid_size, grid_size), dtype=np.uint8)
 
     # Ensure lines are at least 3 cells apart and the center is between them
     center = grid_size // 2
-    start_y = random.randint(center - min_distance - 1, center - 1)
-    end_y = random.randint(center + 1, center + min_distance + 1)
+    start_y = random.randint(5, center - min_distance/2)
+    end_y = 2*center-start_y
+    #end_y = random.randint(center + 1, center + min_distance + 1)
     
     # Define two parallel horizontal lines
-    p1 = (-10, start_y)
-    p2 = (grid_size + 10, start_y)
-    q1 = (-10, end_y)
-    q2 = (grid_size + 10, end_y)
+    p1 = (-5, start_y)
+    p2 = (grid_size + 5, start_y)
+    q1 = (-5, end_y)
+    q2 = (grid_size + 5, end_y)
     
     # Random angle for rotation
-    angle = random.uniform(0, 2 * np.pi)
+    angle = random.uniform(0, np.pi)
 
     # Center of the grid
     cx, cy = center, center
@@ -81,9 +82,9 @@ def create_symmetric_cost_map(grid_size, angle, start_y, end_y, goal_x, goal_y):
     for x in range(grid_size):
         for y in range(grid_size):
             # Calculate direction based on the perpendicular angle
-            dx = x - goal_x
-            dy = y - goal_y
-            distance_perpendicular_to_hallway = dx * math.sin(angle) - dy * math.cos(angle)
+            dx = x - center #+ distance_between_walls/2
+            dy = y - center 
+            distance_perpendicular_to_hallway = dx * math.sin(angle) - dy * math.cos(angle)    +distance_between_walls/2
             distance_parallel_to_hallway = dx * math.cos(angle) + dy * math.sin(angle)
             sigma = distance_between_walls / 3.25
             
@@ -100,27 +101,15 @@ grid_size = 40
 min_distance = 6
 
 version = 0
-for i in range(500):
+parent_dir = os.path.dirname(os.path.realpath(__file__))
+output_dir = os.path.join(parent_dir, 'images/in_out')
+os.makedirs(output_dir, exist_ok=True)
+for i in range(4000):
     gridmap, angle, start_y, end_y, goal_x, goal_y = create_gridmap_with_hallways(grid_size, min_distance)
     cost_map = create_symmetric_cost_map(grid_size, angle, start_y, end_y, goal_x, goal_y)
 
-    transposed_gridmap = np.transpose(gridmap)
-    transposed_cost = np.transpose(cost_map)
-    mirrored_gridmap = np.flip(gridmap, axis=1)
-    mirrored_cost= np.flip(cost_map, axis=1)
-    rotated_gridmap = np.flip(transposed_gridmap, axis=0)
-    rotated_costmap = np.flip(transposed_cost, axis=0)
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/hallway_step_{version}_out.jpg',cost_map)
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/hallway_step_{version}_in.jpg', gridmap)
-    version = version + 1
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/hallway_step_{version}_out.jpg', transposed_cost)
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/hallway_step_{version}_in.jpg', transposed_gridmap)
-    version = version + 1
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/hallway_step_{version}_out.jpg', mirrored_cost)
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/hallway_step_{version}_in.jpg', mirrored_gridmap)
-    version = version + 1
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/hallway_step_{version}_out.jpg', rotated_costmap)
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/hallway_step_{version}_in.jpg', rotated_gridmap)
-    version = version + 1
+    cv2.imwrite(os.path.join(output_dir, f'hallway_step_{version}_out.jpg'), cost_map)
+    cv2.imwrite(os.path.join(output_dir, f'hallway_step_{version}_in.jpg'), gridmap)
+    version = version +1
 
 

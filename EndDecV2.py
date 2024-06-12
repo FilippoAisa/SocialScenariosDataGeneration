@@ -17,26 +17,21 @@ class UNet(nn.Module):
         super(UNet, self).__init__()
 
         # Encoder
-        self.enc1 = self.conv_block(1, 64)
-        self.enc2 = self.conv_block(64, 128)
-        self.enc3 = self.conv_block(128, 256)
-        self.enc4 = self.conv_block(256, 512)
+        self.enc1 = self.conv_block(1, 32)
+        self.enc2 = self.conv_block(32, 64)
+        self.enc3 = self.conv_block(64, 128)
 
         # Bottleneck
-        self.bottleneck = self.conv_block(512, 1024)
+        #self.bottleneck = self.conv_block(512, 1024)
 
         # Decoder
-        self.upconv4 = self.upconv_block(1024, 512)
-        self.dec4 = self.conv_block(1024, 512)
-        self.upconv3 = self.upconv_block(512, 256)
-        self.dec3 = self.conv_block(512, 256)
-        self.upconv2 = self.upconv_block(256, 128)
-        self.dec2 = self.conv_block(256, 128)
-        self.upconv1 = self.upconv_block(128, 64)
-        self.dec1 = self.conv_block(128, 64)
+        self.upconv2 = self.upconv_block(128, 64)
+        self.dec2 = self.conv_block(128, 64)
+        self.upconv1 = self.upconv_block(64, 32)
+        self.dec1 = self.conv_block(64, 32)
 
         # Final Convolution
-        self.final_conv = nn.Conv2d(64, 1, kernel_size=1)
+        self.final_conv = nn.Conv2d(32, 1, kernel_size=1)
     
     def conv_block(self, in_channels, out_channels):
         block = nn.Sequential(
@@ -62,21 +57,13 @@ class UNet(nn.Module):
         enc1 = self.enc1(x)
         enc2 = self.enc2(F.max_pool2d(enc1, 2))
         enc3 = self.enc3(F.max_pool2d(enc2, 2))
-        enc4 = self.enc4(F.max_pool2d(enc3, 2))
         
         # Bottleneck
-        bottleneck = self.bottleneck(F.max_pool2d(enc4, 2))
+        #bottleneck = self.bottleneck(F.max_pool2d(enc4, 2))
         
         # Decoder with proper upsampling and concatenation
-        upconv4 = self.upconv4(bottleneck)
-        dec4 = torch.cat((F.interpolate(upconv4, size=enc4.shape[2:], mode='bilinear', align_corners=True), enc4), dim=1)
-        dec4 = self.dec4(dec4)
         
-        upconv3 = self.upconv3(dec4)
-        dec3 = torch.cat((F.interpolate(upconv3, size=enc3.shape[2:], mode='bilinear', align_corners=True), enc3), dim=1)
-        dec3 = self.dec3(dec3)
-        
-        upconv2 = self.upconv2(dec3)
+        upconv2 = self.upconv2(enc3)
         dec2 = torch.cat((F.interpolate(upconv2, size=enc2.shape[2:], mode='bilinear', align_corners=True), enc2), dim=1)
         dec2 = self.dec2(dec2)
         
@@ -129,8 +116,8 @@ val_size = len(dataset) - train_size
 train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
 
 # DataLoader
-train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True, num_workers=4)
-val_loader = DataLoader(val_dataset, batch_size=4, shuffle=False, num_workers=4)
+train_loader = DataLoader(train_dataset, batch_size=8, shuffle=True, num_workers=4)
+val_loader = DataLoader(val_dataset, batch_size=8, shuffle=False, num_workers=4)
 
 # Model, Loss, and Optimizer
 model = UNet()
@@ -143,7 +130,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model.to(device)
 
 parent_dir = os.path.dirname(os.path.realpath(__file__))
-output_dir = os.path.join(parent_dir, 'images/EncDec_validation_outputs')
+output_dir = os.path.join(parent_dir, 'images/EncDec_validation_outputs/V2')
 os.makedirs(output_dir, exist_ok=True)
 
 for epoch in range(num_epochs):
@@ -211,4 +198,4 @@ for epoch in range(num_epochs):
     print(f'Epoch {epoch+1}/{num_epochs}, Train Loss: {epoch_train_loss:.4f}, Val Loss: {epoch_val_loss:.4f}')
 
 # Save the Model
-torch.save(model.state_dict(), '/home/filippo-aisa/Projects/SocialEncDec/src/SocialScenariosDataGeneration/models/unet_model.pth')
+torch.save(model.state_dict(), '/home/filippo-aisa/Projects/SocialEncDec/src/SocialScenariosDataGeneration/models/V2_unet_model.pthV2_unet_model.pth')

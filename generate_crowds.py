@@ -1,8 +1,20 @@
 import random
 import numpy as np
 import cv2
-import angles
 import math
+import os
+
+def shortest_angular_distance(from_angle, to_angle):
+    # Compute the difference between the two angles
+    diff = to_angle - from_angle
+
+    # Normalize the difference to be within the range of -pi to pi
+    while diff < -math.pi:
+        diff += 2 * math.pi
+    while diff > math.pi:
+        diff -= 2 * math.pi
+
+    return diff
 
 def humans_in_gridmap(humans, human_gridmap):
     # Determine the maximum x and y values for scaling
@@ -15,7 +27,6 @@ def humans_in_gridmap(humans, human_gridmap):
 
     # Update the human_gridmap in place
     for i in range(humans_grid_pos.shape[0]):
-        print(humans_grid_pos[i, 0])
         human_gridmap[humans_grid_pos[i, 0], humans_grid_pos[i, 1]] = max(100, human_gridmap[humans_grid_pos[i, 0], humans_grid_pos[i, 1]])
         dx = 0
         dy = 0
@@ -86,7 +97,7 @@ def people_costs(people_label, people):
                     a = calculate_gaussian(x, y, cx, cy, amplitude, covariance_when_still, covariance_when_still, 0)
                 else:
                     ma = np.arctan2(y - cy, x - cx)
-                    diff = angles.shortest_angular_distance(angle, ma)
+                    diff = shortest_angular_distance(angle, ma)
 
 
                     # FRONT
@@ -101,7 +112,7 @@ def people_costs(people_label, people):
 
                     # RIGHT SIDE
                     if use_passing:
-                        diff_right = angles.shortest_angular_distance(angle_right, ma)
+                        diff_right = shortest_angular_distance(angle_right, ma)
                         if math.fabs(diff_right) < math.pi / 2:
                             a_right = calculate_gaussian(x, y, cx, cy, amplitude, covariance_right_height, covariance_right_width, angle_right)
                             a = max(a, a_right)
@@ -137,7 +148,10 @@ x_dim_grid = 40
 y_dim_grid = 40
 
 version = 0
-for i in range(1):
+parent_dir = os.path.dirname(os.path.realpath(__file__))
+output_dir = os.path.join(parent_dir, 'images/in_out')
+os.makedirs(output_dir, exist_ok=True)
+for i in range(1000):
     initial_state = []
     num_of_people = int(np.floor(random.uniform(4, 40)))
     
@@ -152,12 +166,6 @@ for i in range(1):
     costmap = np.zeros([40,40], dtype=np.uint8)
     gridmap = humans_in_gridmap(np.array(initial_state), gridmap)
     costmap  = people_costs(costmap, np.array(initial_state))
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/crowd_step_{version}_out.jpg', costmap)
-    cv2.imwrite(f'/home/ais/USAN/src/PySocialForce/images/in_out/crowd_step_{version}_in.jpg', gridmap)
+    cv2.imwrite(os.path.join(output_dir, f'crowd_step_{version}_out.jpg'), costmap)
+    cv2.imwrite(os.path.join(output_dir, f'crowd_step_{version}_in.jpg'), gridmap)
     version +=1
-
-        
-    
-
-    
-
